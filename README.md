@@ -26,7 +26,7 @@ Each tool validates input with `zod`, formats output consistently, and includes 
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 20.x (recommended for Render stability)
 - npm
 - API key for at least one provider:
   - Finnhub: `FINNHUB_API_KEY`
