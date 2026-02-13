@@ -1,0 +1,32 @@
+{
+  "name": "local-stock-analyst-mcp",
+  "version": "1.0.0",
+  "description": "Local stdio MCP server for stock analysis with Finnhub + Alpha Vantage fallback.",
+  "type": "module",
+  "bin": {
+    "local-stock-analyst": "build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node build/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "stocks",
+    "typescript"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.0",
+    "dotenv": "^16.4.7",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
+

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: local-stock-analyst-mcp
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: MCP_TRANSPORT
+        value: http
+      - key: FINNHUB_API_KEY
+        sync: false
+      - key: ALPHAVANTAGE_API_KEY
+        sync: false
+
