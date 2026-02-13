@@ -440,7 +440,9 @@ async function main() {
     if (!finnhubClient && !alphaVantageClient) {
         console.error("Warning: no API keys detected. Set FINNHUB_API_KEY and/or ALPHAVANTAGE_API_KEY.");
     }
-    const transportMode = (process.env.MCP_TRANSPORT ?? "stdio").toLowerCase();
+    const isRenderEnvironment = process.env.RENDER === "true" || Boolean(process.env.RENDER_EXTERNAL_URL);
+    const transportMode = (process.env.MCP_TRANSPORT ?? (isRenderEnvironment ? "http" : "stdio"))
+        .toLowerCase();
     if (transportMode === "http" || transportMode === "streamable-http") {
         const port = Number(process.env.PORT ?? 3000);
         if (!Number.isFinite(port) || port <= 0) {

@@ -590,7 +590,10 @@ async function main() {
     );
   }
 
-  const transportMode = (process.env.MCP_TRANSPORT ?? "stdio").toLowerCase();
+  const isRenderEnvironment =
+    process.env.RENDER === "true" || Boolean(process.env.RENDER_EXTERNAL_URL);
+  const transportMode = (process.env.MCP_TRANSPORT ?? (isRenderEnvironment ? "http" : "stdio"))
+    .toLowerCase();
 
   if (transportMode === "http" || transportMode === "streamable-http") {
     const port = Number(process.env.PORT ?? 3000);
