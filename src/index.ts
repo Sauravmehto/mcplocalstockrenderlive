@@ -212,6 +212,23 @@ function formatMacdSummary(points: NormalizedMacdPoint[]): string[] {
   ];
 }
 
+async function parseJsonRequestBody(
+  req: import("node:http").IncomingMessage,
+): Promise<unknown> {
+  const chunks: Buffer[] = [];
+
+  for await (const chunk of req) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+
+  const raw = Buffer.concat(chunks).toString("utf8").trim();
+  if (!raw) {
+    return {};
+  }
+
+  return JSON.parse(raw);
+}
+
 server.registerTool(
   "get_stock_price",
   {
@@ -628,7 +645,25 @@ async function main() {
       }
 
       if (requestUrl.pathname === "/mcp") {
-        await transport.handleRequest(req, res);
+        try {
+          let parsedBody: unknown = undefined;
+
+          if (req.method === "POST") {
+            const contentType = req.headers["content-type"] ?? "";
+            if (typeof contentType === "string" && contentType.includes("application/json")) {
+              parsedBody = await parseJsonRequestBody(req);
+            }
+          }
+
+          await transport.handleRequest(req, res, parsedBody);
+        } catch (error) {
+          console.error("HTTP /mcp request failed:", error);
+          if (!res.headersSent) {
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: "MCP request failed" }));
+          }
+        }
         return;
       }
 

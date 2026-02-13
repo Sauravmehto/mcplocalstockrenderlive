@@ -166,6 +166,17 @@ function formatMacdSummary(points) {
         lineDate("Timestamp", point.timestamp),
     ];
 }
+async function parseJsonRequestBody(req) {
+    const chunks = [];
+    for await (const chunk of req) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    }
+    const raw = Buffer.concat(chunks).toString("utf8").trim();
+    if (!raw) {
+        return {};
+    }
+    return JSON.parse(raw);
+}
 server.registerTool("get_stock_price", {
     description: "Get latest traded stock price for a ticker symbol.",
     inputSchema: {
@@ -470,7 +481,24 @@ async function main() {
                 return;
             }
             if (requestUrl.pathname === "/mcp") {
-                await transport.handleRequest(req, res);
+                try {
+                    let parsedBody = undefined;
+                    if (req.method === "POST") {
+                        const contentType = req.headers["content-type"] ?? "";
+                        if (typeof contentType === "string" && contentType.includes("application/json")) {
+                            parsedBody = await parseJsonRequestBody(req);
+                        }
+                    }
+                    await transport.handleRequest(req, res, parsedBody);
+                }
+                catch (error) {
+                    console.error("HTTP /mcp request failed:", error);
+                    if (!res.headersSent) {
+                        res.statusCode = 500;
+                        res.setHeader("Content-Type", "application/json");
+                        res.end(JSON.stringify({ error: "MCP request failed" }));
+                    }
+                }
                 return;
             }
             res.statusCode = 404;
