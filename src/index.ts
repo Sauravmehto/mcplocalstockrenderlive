@@ -621,6 +621,8 @@ async function main() {
     const transport = new StreamableHTTPServerTransport({
       // Stateless mode keeps deployment simple behind Render.
       sessionIdGenerator: undefined,
+      // Prefer plain JSON responses for broader client/proxy compatibility.
+      enableJsonResponse: true,
     });
     await server.connect(transport);
 
